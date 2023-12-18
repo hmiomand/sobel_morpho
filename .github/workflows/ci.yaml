@@ -1,0 +1,24 @@
+name: CI Ubuntu
+on: 
+  workflow_dispatch:
+  push:
+
+jobs:
+  ubuntu:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Site Repo
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: sudo apt install -y libsdl2-dev libsdl2-ttf-dev
+
+    - name: Generate project
+      run: ./CMakeGCC.sh
+
+    - name: Makefile
+      run: make -C bin/make/ # (cd bin/make/ && make)
+
+    - name: Run program
+      run: ./bin/make/Release/sobel
