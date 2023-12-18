@@ -1,0 +1,50 @@
+name: CI Multi OS
+on: 
+  workflow_dispatch:
+  push:
+
+jobs:
+  build_and_test:
+    strategy:
+        matrix:
+          config: 
+          - {
+              name: "Windows CI",
+              os: windows-latest,
+              cmake_build_dir: "bin",
+              cmake_build_param: --config Release,
+              exec_path: .\Release\sobel.exe
+            }
+          - {
+              name: "Ubuntu CI",
+              os: ubuntu-latest,
+              cmake_build_dir: bin/make,
+              cmake_build_param: ,
+              exec_path: ./Release/sobel
+            }
+    runs-on: ${{ matrix.config.os }}
+    name: ${{ matrix.config.name }}
+
+    steps:
+    - name: Checkout Site Repo
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      if: matrix.config.os == 'ubuntu-latest'
+      run: sudo apt install -y libsdl2-dev libsdl2-ttf-dev
+
+    - name: Generate project ${{ matrix.config.os }}
+      if: matrix.config.os == 'ubuntu-latest'
+      run: ./CMakeGCC.sh
+
+    - name: Generate project ${{ matrix.config.os }}
+      if: matrix.config.os == 'windows-latest'
+      run: ./CMakeVS2022.bat
+
+    - name: Compile
+      run: cmake --build ${{ matrix.config.cmake_build_dir }} ${{ matrix.config.cmake_build_param }}
+
+    - name: Run program
+      run: |
+        cd ${{ matrix.config.cmake_build_dir }}
+        ${{ matrix.config.exec_path }}
