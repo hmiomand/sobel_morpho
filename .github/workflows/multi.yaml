@@ -6,6 +6,7 @@ on:
 jobs:
   build_and_test:
     strategy:
+        # Creating a matrix for OSs specificities
         matrix:
           config: 
           - {
@@ -22,6 +23,8 @@ jobs:
               cmake_build_param: ,
               exec_path: ./Release/sobel
             }
+
+    # Running a separate job for each entry
     runs-on: ${{ matrix.config.os }}
     name: ${{ matrix.config.name }}
 
@@ -29,21 +32,26 @@ jobs:
     - name: Checkout Site Repo
       uses: actions/checkout@v4
 
+      # Conditional step only for Ubuntu
     - name: Install dependencies
       if: matrix.config.os == 'ubuntu-latest'
       run: sudo apt install -y libsdl2-dev libsdl2-ttf-dev
 
-    - name: Generate project ${{ matrix.config.os }}
+      # Conditional step only for Ubuntu
+    - name: Generate Ubuntu project
       if: matrix.config.os == 'ubuntu-latest'
       run: ./CMakeGCC.sh
 
-    - name: Generate project ${{ matrix.config.os }}
+      # Conditional step only for Windows
+    - name: Generate Windows project
       if: matrix.config.os == 'windows-latest'
       run: ./CMakeVS2022.bat
 
+      # Compiling code through the build manager
     - name: Compile
       run: cmake --build ${{ matrix.config.cmake_build_dir }} ${{ matrix.config.cmake_build_param }}
 
+      # cd into cmake_build_dir first because of Windows DLL shenanigans
     - name: Run program
       run: |
         cd ${{ matrix.config.cmake_build_dir }}
