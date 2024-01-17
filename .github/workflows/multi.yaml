@@ -35,7 +35,9 @@ jobs:
       # Conditional step only for Ubuntu
     - name: Install dependencies
       if: matrix.config.os == 'ubuntu-latest'
-      run: sudo apt install -y libsdl2-dev libsdl2-ttf-dev
+      run: |
+        sudo apt update
+        sudo apt install -y libsdl2-dev libsdl2-ttf-dev
 
       # Conditional step only for Ubuntu
     - name: Generate Ubuntu project
